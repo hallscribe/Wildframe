@@ -1,0 +1,35 @@
+{
+	"schemaVersion": 1,
+	"id": "wildframe",
+	"version": "${version}",
+	"name": "Wildframe",
+	"description": "Wildframe expands Minecraft with new items, blocks, tools, and creatures that feel like a natural part of the game — built to grow alongside every new vanilla update.",
+	"authors": [
+		"hallscribe"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/wildframe",
+		"sources": "https://github.com/hallscribe/wildframe",
+		"issues": "https://github.com/hallscribe/wildframe/issues"
+	},
+	"license": "MIT",
+	"icon": "assets/wildframe/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.hallscribe.wildframe.Wildframe"
+		],
+		"fabric-datagen": [
+			"net.hallscribe.wildframe.WildframeDataGenerator"
+		]
+	},
+	"mixins": [
+		"wildframe.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
