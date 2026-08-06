@@ -1,0 +1,6 @@
+{
+  "parent": "entity/base",
+  "textures": {
+    "layer0": "wildframe:entity/animal/chameleon/chameleon"
+  }
+}

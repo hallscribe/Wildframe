@@ -1,0 +1,11 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "walk": {
+      "loop": true,
+      "timeline": {
+        "Body": {"rotation": [[0, -10, 0], [0.5, 10, 0], [1, -10, 0]]}
+      }
+    }
+  }
+}
