@@ -3,7 +3,7 @@
 	"id": "wildframe",
 	"version": "${version}",
 	"name": "Wildframe",
-	"description": "Wildframe expands Minecraft with new items, blocks, tools, and creatures that feel like a natural part of the game — built to grow alongside every new vanilla update.",
+	"description": "Wildframe is a mod that adds new items, blocks and tools to Minecraft.",
 	"authors": [
 		"hallscribe"
 	],
@@ -19,10 +19,14 @@
 		"main": [
 			"net.hallscribe.wildframe.Wildframe"
 		],
+		"client": [
+			"net.hallscribe.wildframe.WildframeClient"
+		],
 		"fabric-datagen": [
 			"net.hallscribe.wildframe.WildframeDataGenerator"
 		]
 	},
+	"accessWidener": "wildframe.accesswidener",
 	"mixins": [
 		"wildframe.mixins.json"
 	],

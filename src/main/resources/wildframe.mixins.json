@@ -5,6 +5,9 @@
 	"mixins": [
 		"ExampleMixin"
 	],
+	"client": [
+		"AvatarRendererMixin"
+	],
 	"injectors": {
 		"defaultRequire": 1
 	},

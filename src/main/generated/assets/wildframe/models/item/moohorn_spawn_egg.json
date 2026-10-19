@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "wildframe:item/moohorn_spawn_egg"
+  }
+}

@@ -1,4 +1,5 @@
 # Wildframe
+Mod that tries to overhaul minecraft's wild creatures, blocks and items in a vanilla style.
 
 ## Setup
 

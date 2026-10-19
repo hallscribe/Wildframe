@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "Fur Leggings",
+  "key": {
+    "F": "wildframe:fur"
+  },
+  "pattern": [
+    "FFF",
+    "F F",
+    "F F"
+  ],
+  "result": {
+    "id": "wildframe:fur_leggings"
+  }
+}

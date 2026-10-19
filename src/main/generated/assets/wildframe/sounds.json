@@ -1,0 +1,116 @@
+{
+  "ambient": {
+    "sounds": [
+      "wildframe:entity/moohorn/ambient1",
+      "wildframe:entity/moohorn/ambient2",
+      "wildframe:entity/moohorn/ambient3",
+      "wildframe:entity/moohorn/ambient4",
+      "wildframe:entity/moohorn/ambient5",
+      "wildframe:entity/moohorn/ambient6",
+      "wildframe:entity/moohorn/ambient7"
+    ],
+    "subtitle": "sounds.entity.moohorn.wildframe.ambient"
+  },
+  "angry": {
+    "sounds": [
+      "wildframe:entity/moohorn/angry1",
+      "wildframe:entity/moohorn/angry2",
+      "wildframe:entity/moohorn/angry3"
+    ],
+    "subtitle": "sounds.entity.moohorn.wildframe.angry"
+  },
+  "attack": {
+    "sounds": [
+      "wildframe:entity/moohorn/attack"
+    ],
+    "subtitle": "sounds.entity.moohorn.wildframe.attack"
+  },
+  "baby_ambient": {
+    "sounds": [
+      "wildframe:entity/moohorn/baby_moohorn/ambient1",
+      "wildframe:entity/moohorn/baby_moohorn/ambient2",
+      "wildframe:entity/moohorn/baby_moohorn/ambient3",
+      "wildframe:entity/moohorn/baby_moohorn/ambient4",
+      "wildframe:entity/moohorn/baby_moohorn/ambient5"
+    ],
+    "subtitle": "sounds.entity.moohorn.wildframe.ambient"
+  },
+  "baby_angry": {
+    "sounds": [
+      "wildframe:entity/moohorn/baby_moohorn/angry"
+    ],
+    "subtitle": "sounds.entity.moohorn.wildframe.angry"
+  },
+  "baby_death": {
+    "sounds": [
+      "wildframe:entity/moohorn/baby_moohorn/death"
+    ],
+    "subtitle": "sounds.entity.moohorn.wildframe.death"
+  },
+  "baby_hurt": {
+    "sounds": [
+      "wildframe:entity/moohorn/baby_moohorn/hurt1",
+      "wildframe:entity/moohorn/baby_moohorn/hurt2",
+      "wildframe:entity/moohorn/baby_moohorn/hurt3"
+    ],
+    "subtitle": "sounds.entity.moohorn.wildframe.hurt"
+  },
+  "breathe": {
+    "sounds": [
+      "wildframe:entity/moohorn/breathe1",
+      "wildframe:entity/moohorn/breathe2",
+      "wildframe:entity/moohorn/breathe3",
+      "wildframe:entity/moohorn/breathe4",
+      "wildframe:entity/moohorn/breathe5",
+      "wildframe:entity/moohorn/breathe6",
+      "wildframe:entity/moohorn/breathe7"
+    ],
+    "subtitle": "sounds.entity.moohorn.wildframe.breathe"
+  },
+  "death": {
+    "sounds": [
+      "wildframe:entity/moohorn/death"
+    ],
+    "subtitle": "sounds.entity.moohorn.wildframe.death"
+  },
+  "eat": {
+    "sounds": [
+      "wildframe:entity/moohorn/eat1",
+      "wildframe:entity/moohorn/eat2",
+      "wildframe:entity/moohorn/eat3",
+      "wildframe:entity/moohorn/eat4",
+      "wildframe:entity/moohorn/eat5"
+    ],
+    "subtitle": "sounds.entity.moohorn.wildframe.eat"
+  },
+  "hurt": {
+    "sounds": [
+      "wildframe:entity/moohorn/hurt1",
+      "wildframe:entity/moohorn/hurt2",
+      "wildframe:entity/moohorn/hurt3"
+    ],
+    "subtitle": "sounds.entity.moohorn.wildframe.hurt"
+  },
+  "soft": {
+    "sounds": [
+      "wildframe:entity/moohorn/soft1",
+      "wildframe:entity/moohorn/soft2",
+      "wildframe:entity/moohorn/soft3",
+      "wildframe:entity/moohorn/soft4",
+      "wildframe:entity/moohorn/soft5",
+      "wildframe:entity/moohorn/soft6"
+    ],
+    "subtitle": "sounds.entity.moohorn.wildframe.soft"
+  },
+  "wood": {
+    "sounds": [
+      "wildframe:entity/moohorn/wood1",
+      "wildframe:entity/moohorn/wood2",
+      "wildframe:entity/moohorn/wood3",
+      "wildframe:entity/moohorn/wood4",
+      "wildframe:entity/moohorn/wood5",
+      "wildframe:entity/moohorn/wood6"
+    ],
+    "subtitle": "sounds.entity.moohorn.wildframe.wood"
+  }
+}

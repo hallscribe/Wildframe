@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "Fur Boots",
+  "key": {
+    "F": "wildframe:fur"
+  },
+  "pattern": [
+    "F F",
+    "F F"
+  ],
+  "result": {
+    "id": "wildframe:fur_boots"
+  }
+}

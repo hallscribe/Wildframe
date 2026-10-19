@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_fur": {
+      "conditions": {
+        "items": [
+          {
+            "items": "wildframe:fur"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "wildframe:fur_boots_from_fur"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_fur"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "wildframe:fur_boots_from_fur"
+    ]
+  }
+}

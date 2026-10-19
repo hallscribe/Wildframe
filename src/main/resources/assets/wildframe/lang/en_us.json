@@ -1,0 +1,20 @@
+{
+  "entity.wildframe.moohorn": "Moohorn",
+
+  "item.wildframe.fur": "Fur",
+  "item.wildframe.moohorn_spawn_egg": "Moohorn Spawn Egg",
+
+  "item.wildframe.fur_helmet": "Fur Helmet",
+  "item.wildframe.fur_chestplate": "Fur Chestplate",
+  "item.wildframe.fur_leggings": "Fur Leggings",
+  "item.wildframe.fur_boots": "Fur Boots",
+
+  "item.wildframe.fur_helmet_from_fur": "Fur Helmet From Fur",
+  "item.wildframe.fur_chestplate_from_fur": "Fur Chestplate From Fur",
+  "item.wildframe.fur_leggings_from_fur": "Fur Leggings From Fur",
+  "item.wildframe.fur_boots_from_fur": "Fur Boots From Fur",
+
+  "creativemodetab.wildframe.wildframe": "Wildframe",
+
+  "particle.wildframe.run_smoke": "Run Smoke"
+}
