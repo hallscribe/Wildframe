@@ -60,7 +60,7 @@ public class Moohorn extends Animal implements NeutralMob, PlayerRideableJumping
     private boolean groupAlarm;
     private @Nullable LivingEntity groupThreat;
 
-    private static final int FUR_INTERVAL_TICKS = 3 * 60 * 5;
+    private static final int FUR_INTERVAL_TICKS = 3 * 60 * 40;
 
     private int furTime = FUR_INTERVAL_TICKS;
 
