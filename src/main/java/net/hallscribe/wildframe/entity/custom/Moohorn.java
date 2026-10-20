@@ -53,6 +53,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -67,7 +68,7 @@ public class Moohorn extends Animal implements NeutralMob, PlayerRideableJumping
     private static final EntityDataAccessor<Boolean> DATA_RUNNING_ID = SynchedEntityData.defineId(Moohorn.class, EntityDataSerializers.BOOLEAN);
     private static final Identifier ANGER_SPEED_MODIFIER_ID = Identifier.fromNamespaceAndPath("wildframe", "anger_speed_boost");
     private static final AttributeModifier ANGER_SPEED_MODIFIER = new AttributeModifier(
-        ANGER_SPEED_MODIFIER_ID, 2.8, AttributeModifier.Operation.ADD_MULTIPLIED_BASE
+            ANGER_SPEED_MODIFIER_ID, 2.3, AttributeModifier.Operation.ADD_MULTIPLIED_BASE
     );
     public final AnimationState attackAnimationState = new AnimationState();
     public int attackAnimationTick = 0;
@@ -132,10 +133,6 @@ public class Moohorn extends Animal implements NeutralMob, PlayerRideableJumping
         return this.guardian;
     }
 
-    void setGuardian(final @Nullable Moohorn guardian) {
-        this.guardian = guardian;
-    }
-
     void raiseGroupAlarm(final @Nullable LivingEntity threat) {
         this.groupAlarm = true;
         this.groupThreat = threat;
@@ -155,14 +152,132 @@ public class Moohorn extends Animal implements NeutralMob, PlayerRideableJumping
     }
 
     void rallyAdultsAgainst(final LivingEntity threat) {
+        this.callHerd(threat);
+    }
+
+    private static final double HERD_ALERT_RANGE = 64.0;
+    private static final double GUARD_RANGE = 48.0;
+    private static final int HERD_ALERT_TICKS = 200;
+    private static final int UNREACHABLE_TICKS = 200;
+
+    private static final double GUARDIAN_ENGAGE_RANGE = 10.0;
+    private static final double GUARDIAN_LEASH_RANGE = 16.0;
+
+    private long herdAlertUntil;
+    private @Nullable LivingEntity herdThreat;
+    private @Nullable UUID unreachableId;
+    private long unreachableUntil;
+
+    List<Moohorn> getHerdMates(final double range) {
+        return this.level().getEntitiesOfClass(Moohorn.class,
+                this.getBoundingBox().inflate(range, 16.0, range),
+                o -> o != this && o.isAlive() && this.distanceToSqr(o) <= range * range);
+    }
+
+    boolean isHerdAlert() {
+        return this.level().getGameTime() < this.herdAlertUntil;
+    }
+
+    boolean isGuardianOfBaby() {
+        if (this.isBaby()) {
+            return false;
+        }
+        return !this.level().getEntitiesOfClass(Moohorn.class,
+                this.getBoundingBox().inflate(GUARD_RANGE, 16.0, GUARD_RANGE),
+                o -> o.isBaby() && o.isAlive() && o.guardian == this).isEmpty();
+    }
+
+    void callHerd(final LivingEntity threat) {
         if (threat instanceof Player player && (player.isCreative() || player.isSpectator())) {
             return;
         }
-        for (Moohorn adult : this.level().getEntitiesOfClass(Moohorn.class,
-                this.getBoundingBox().inflate(24.0, 8.0, 24.0),
-                o -> o != this && !o.isBaby() && o.isAlive() && !o.isVehicle() && o.getTarget() == null)) {
-            adult.setTarget(threat);
+        final long until = this.level().getGameTime() + HERD_ALERT_TICKS;
+        this.herdAlertUntil = until;
+        this.herdThreat = threat;
+
+        final List<Moohorn> fighters = new ArrayList<>();
+        final List<Moohorn> guardians = new ArrayList<>();
+        for (Moohorn mate : this.getHerdMates(HERD_ALERT_RANGE)) {
+            mate.herdAlertUntil = until;
+            mate.herdThreat = threat;
+            if (mate.isBaby() || mate.isVehicle()) continue;
+            (mate.isGuardianOfBaby() ? guardians : fighters).add(mate);
         }
+        final boolean selfFights = !this.isBaby() && !this.isVehicle() && !this.isGuardianOfBaby();
+        final List<Moohorn> sent = (fighters.isEmpty() && !selfFights) ? guardians : fighters;
+        for (Moohorn mate : sent) {
+            if (mate.getTarget() == null) {
+                mate.setTarget(threat);
+            }
+        }
+    }
+
+    private void tickGuardianDefense() {
+        final LivingEntity threat = this.herdThreat;
+        if (threat == null || !threat.isAlive() || !this.isHerdAlert() || this.isBaby() || this.isVehicle()) {
+            return;
+        }
+        if (!this.isGuardianOfBaby()) {
+            return;
+        }
+        final double d = this.distanceToSqr(threat);
+        final LivingEntity current = this.getTarget();
+        if (current == null && d <= GUARDIAN_ENGAGE_RANGE * GUARDIAN_ENGAGE_RANGE) {
+            this.setTarget(threat);
+        } else if (current == threat && d > GUARDIAN_LEASH_RANGE * GUARDIAN_LEASH_RANGE) {
+            this.setTarget(null);
+        }
+    }
+
+    List<Moohorn> getHerdAdults(final double range) {
+        return this.level().getEntitiesOfClass(Moohorn.class,
+                this.getBoundingBox().inflate(range, 16.0, range),
+                o -> o != this && o.isAlive() && !o.isBaby() && this.distanceToSqr(o) <= range * range);
+    }
+
+    private void ensureGuardian() {
+        if (this.guardian != null && this.guardian.isAlive() && !this.guardian.isBaby()
+                && this.distanceToSqr(this.guardian) < 64.0 * 64.0) {
+            return;
+        }
+        this.guardian = null;
+        List<Moohorn> nearby = this.getHerdMates(32.0);
+        Moohorn best = null;
+        int bestWards = Integer.MAX_VALUE;
+        double bestDist = Double.MAX_VALUE;
+        for (Moohorn adult : nearby) {
+            if (adult.isBaby() || adult.isVehicle()) continue;
+            int wards = 0;
+            for (Moohorn b : nearby) {
+                if (b.isBaby() && b.guardian == adult) wards++;
+            }
+            double d = this.distanceToSqr(adult);
+            if (wards < bestWards || (wards == bestWards && d < bestDist)) {
+                best = adult;
+                bestWards = wards;
+                bestDist = d;
+            }
+        }
+        this.guardian = best;
+    }
+
+    void markUnreachable(final LivingEntity target) {
+        this.unreachableId = target.getUUID();
+        this.unreachableUntil = this.level().getGameTime() + UNREACHABLE_TICKS;
+    }
+
+    boolean isUnreachable(final LivingEntity target) {
+        return this.unreachableId != null
+                && this.unreachableId.equals(target.getUUID())
+                && this.level().getGameTime() < this.unreachableUntil;
+    }
+
+    @Override
+    public void setTarget(final @Nullable LivingEntity target) {
+        if (target != null && this.isUnreachable(target)) {
+            return;
+        }
+        super.setTarget(target);
     }
 
     @Override
@@ -251,10 +366,11 @@ public class Moohorn extends Animal implements NeutralMob, PlayerRideableJumping
         this.goalSelector.addGoal(3, new TemptGoal(this, 1.25, i -> i.is(Items.HAY_BLOCK), false));
         this.goalSelector.addGoal(4, new MoohornGuardGoal(this, 1.4D));
         this.goalSelector.addGoal(5, new MoohornChargeGoal(this, 1.2D, 1.6D));
-        this.goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 1.0D));
-        this.goalSelector.addGoal(7, new FollowParentGoal(this, 1.25));
-        this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 6.0F));
-        this.goalSelector.addGoal(9, new RandomLookAroundGoal(this));
+        this.goalSelector.addGoal(6, new MoohornHerdGoal(this, 1.1D));
+        this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+        this.goalSelector.addGoal(6, new BabyFollowGuardianGoal(this, 1.25D));
+        this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 6.0F));
+        this.goalSelector.addGoal(10, new RandomLookAroundGoal(this));
         this.targetSelector.addGoal(1, new MoohornHurtByTargetGoal());
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, 16, true, false, this::isAngryAt));
         this.targetSelector.addGoal(3, new ResetUniversalAngerTargetGoal<>(this, false));
@@ -276,7 +392,7 @@ public class Moohorn extends Animal implements NeutralMob, PlayerRideableJumping
 
         @Override
         protected void alertOther(final Mob other, final LivingEntity hurtByMob) {
-            if (other instanceof Moohorn && !other.isBaby()) {
+            if (other instanceof Moohorn m && !m.isBaby() && !m.isGuardianOfBaby()) {
                 super.alertOther(other, hurtByMob);
             }
         }
@@ -316,7 +432,8 @@ public class Moohorn extends Animal implements NeutralMob, PlayerRideableJumping
                 this.setRideSprinting(false);
 
                 LivingEntity t = this.getTarget();
-                if (t != null && this.distanceToSqr(t) > 32.0 * 32.0) {
+                final double giveUpDist = this.isHerdAlert() ? 72.0 : 32.0;
+                if (t != null && this.distanceToSqr(t) > giveUpDist * giveUpDist) {
                     this.setTarget(null);
                 }
 
@@ -330,6 +447,13 @@ public class Moohorn extends Animal implements NeutralMob, PlayerRideableJumping
                     speed.removeModifier(ANGER_SPEED_MODIFIER_ID);
                 }
                 this.setRunning(angry || this.panicRuns);
+
+                if (this.isBaby() && this.tickCount % 20 == 0) {
+                    this.ensureGuardian();
+                }
+                if (!this.isBaby() && this.tickCount % 10 == 0) {
+                    this.tickGuardianDefense();
+                }
             }
 
             this.playMovementSoundsIfNeeded();
@@ -787,7 +911,12 @@ public class Moohorn extends Animal implements NeutralMob, PlayerRideableJumping
             attacker.stopRiding();
             mount.refuseRider();
         }
-        return super.hurtServer(level, source, damage);
+        final boolean hurt = super.hurtServer(level, source, damage);
+        if (hurt && source.getEntity() instanceof LivingEntity attacker
+                && attacker != this && !(attacker instanceof Moohorn)) {
+            this.callHerd(attacker);
+        }
+        return hurt;
     }
 
     @Override

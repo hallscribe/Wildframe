@@ -23,16 +23,20 @@ public class MoohornGuardGoal extends Goal {
         this.setFlags(EnumSet.of(Goal.Flag.MOVE));
     }
 
+    private boolean inDanger() {
+        return this.mob.getTarget() != null || this.mob.isHerdAlert();
+    }
+
     @Override
     public boolean canUse() {
-        if (this.mob.isBaby() || this.mob.isVehicle() || this.mob.getTarget() == null) {
+        if (this.mob.isBaby() || this.mob.isVehicle() || !this.inDanger()) {
             return false;
         }
         if (--this.checkDelay > 0) {
             return false;
         }
         this.checkDelay = CHECK_INTERVAL;
-        this.baby = this.findBabyToGuard();
+        this.baby = this.findStrayWard();
         return this.baby != null;
     }
 
@@ -40,7 +44,8 @@ public class MoohornGuardGoal extends Goal {
     public boolean canContinueToUse() {
         return this.baby != null
                 && this.baby.isAlive()
-                && this.mob.getTarget() != null
+                && this.baby.isBaby()
+                && this.inDanger()
                 && !this.mob.isVehicle()
                 && this.baby.getGuardian() == this.mob
                 && this.mob.distanceToSqr(this.baby) > ARRIVE_SQR;
@@ -67,25 +72,17 @@ public class MoohornGuardGoal extends Goal {
         this.mob.getNavigation().stop();
     }
 
-    private @Nullable Moohorn findBabyToGuard() {
+    private @Nullable Moohorn findStrayWard() {
         Moohorn best = null;
         double bestDist = Double.MAX_VALUE;
         for (Moohorn b : this.mob.level().getEntitiesOfClass(Moohorn.class,
                 this.mob.getBoundingBox().inflate(SEARCH_RANGE, 16.0, SEARCH_RANGE),
-                o -> o != this.mob && o.isBaby() && o.isAlive())) {
+                o -> o != this.mob && o.isBaby() && o.isAlive() && o.getGuardian() == this.mob)) {
             double d = this.mob.distanceToSqr(b);
-            if (d <= TOO_FAR_SQR || d >= bestDist) continue;
-
-            Moohorn current = b.getGuardian();
-            boolean free = current == null || !current.isAlive() || current.isBaby()
-                    || current.distanceToSqr(b) > 64.0 * 64.0;
-            if (free || current == this.mob) {
+            if (d > TOO_FAR_SQR && d < bestDist) {
                 best = b;
                 bestDist = d;
             }
-        }
-        if (best != null) {
-            best.setGuardian(this.mob);
         }
         return best;
     }

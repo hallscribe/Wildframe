@@ -52,6 +52,8 @@ public class MoohornChargeGoal extends Goal {
 
     private static final int TERRAIN_CHECK_INTERVAL = 5;
     private static final int MELEE_COOLDOWN = 20;
+    private static final int REACH_CHECK_INTERVAL = 20;
+    private static final int UNREACHABLE_LIMIT = 3;
 
     private final Moohorn mob;
     private final double approachSpeed;
@@ -64,6 +66,8 @@ public class MoohornChargeGoal extends Goal {
     private int checkDelay;
     private int attackCooldown;
     private int reaimsLeft;
+    private int reachCheckDelay;
+    private int unreachableChecks;
     private boolean hitThisLeg;
     private Vec3 chargeEnd = Vec3.ZERO;
 
@@ -125,6 +129,8 @@ public class MoohornChargeGoal extends Goal {
         this.attackCooldown = 0;
         this.lastTargetPos = null;
         this.targetVelocity = Vec3.ZERO;
+        this.reachCheckDelay = 0;
+        this.unreachableChecks = 0;
         this.clearShaker();
     }
 
@@ -165,6 +171,16 @@ public class MoohornChargeGoal extends Goal {
             this.mob.doHurtTarget((ServerLevel) this.mob.level(), target);
         }
 
+        if (--this.reachCheckDelay <= 0) {
+            this.reachCheckDelay = REACH_CHECK_INTERVAL;
+            if (this.canReachTarget(target)) {
+                this.unreachableChecks = 0;
+            } else if (++this.unreachableChecks >= UNREACHABLE_LIMIT) {
+                this.giveUp(target);
+                return;
+            }
+        }
+
         if (this.mob.distanceToSqr(target) < CHARGE_START_RANGE_SQR && --this.checkDelay <= 0) {
             this.checkDelay = TERRAIN_CHECK_INTERVAL;
             if (this.mob.getSensing().hasLineOfSight(target)
@@ -179,6 +195,19 @@ public class MoohornChargeGoal extends Goal {
             this.repathDelay = 10;
             this.mob.getNavigation().moveTo(target, this.approachSpeed);
         }
+    }
+
+    private boolean canReachTarget(LivingEntity target) {
+        if (this.mob.getBoundingBox().inflate(1.5).intersects(target.getBoundingBox())) return true;
+        Path path = this.mob.getNavigation().createPath(target, 0);
+        return path != null && path.canReach();
+    }
+
+    private void giveUp(LivingEntity target) {
+        this.mob.markUnreachable(target);
+        this.mob.setTarget(null);
+        this.mob.getNavigation().stop();
+        this.unreachableChecks = 0;
     }
 
     private void beginWindup() {
@@ -292,8 +321,8 @@ public class MoohornChargeGoal extends Goal {
     private void applyShaker() {
         Vec3 mobPos = this.mob.position();
         AABB radiusBox = new AABB(
-            mobPos.x - SHAKER_RADIUS, mobPos.y - 2.0, mobPos.z - SHAKER_RADIUS,
-            mobPos.x + SHAKER_RADIUS, mobPos.y + 2.0, mobPos.z + SHAKER_RADIUS
+                mobPos.x - SHAKER_RADIUS, mobPos.y - 2.0, mobPos.z - SHAKER_RADIUS,
+                mobPos.x + SHAKER_RADIUS, mobPos.y + 2.0, mobPos.z + SHAKER_RADIUS
         );
 
         List<LivingEntity> nearby = this.mob.level().getEntitiesOfClass(LivingEntity.class, radiusBox);

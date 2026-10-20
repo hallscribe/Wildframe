@@ -20,7 +20,7 @@ public class MoohornPanicGoal extends PanicGoal {
     private static final double PARENT_ARRIVE_SQR = 3.0 * 3.0;
     private static final Identifier SPEED_ID = Identifier.fromNamespaceAndPath("wildframe", "baby_panic_boost");
     private static final AttributeModifier SPEED_BOOST = new AttributeModifier(
-            SPEED_ID, 1.8, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+            SPEED_ID, 1.5, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
 
     private int rallyDelay;
 
@@ -195,6 +195,11 @@ public class MoohornPanicGoal extends PanicGoal {
     }
 
     private @Nullable Moohorn findNearestAdult() {
+        Moohorn guardian = this.moohorn.getGuardian();
+        if (guardian != null && guardian.isAlive() && !guardian.isBaby()
+                && this.moohorn.distanceToSqr(guardian) < 32.0 * 32.0) {
+            return guardian;
+        }
         Moohorn best = null;
         double bestDist = Double.MAX_VALUE;
         for (Moohorn other : this.moohorn.level().getEntitiesOfClass(Moohorn.class,
